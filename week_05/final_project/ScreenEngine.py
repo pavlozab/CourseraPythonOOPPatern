@@ -37,7 +37,7 @@ class ScreenHandle(pygame.Surface):
 
 class GameSurface(ScreenHandle):
     
-    def calculate(self):
+    def min_x_y(self):
         screen_size = list(self.get_size())
         screen_size[0] /= self.game_engine.sprite_size
         screen_size[1] /= self.game_engine.sprite_size
@@ -54,7 +54,7 @@ class GameSurface(ScreenHandle):
         self.game_engine.hero.draw(self)
 
     def draw_map(self):
-        min_x, min_y = self.calculate()
+        min_x, min_y = self.min_x_y()
 
         if self.game_engine.map:
             for i in range(len(self.game_engine.map[0]) - min_x):
@@ -67,7 +67,7 @@ class GameSurface(ScreenHandle):
     def draw_object(self, sprite, coord):
         size = self.game_engine.sprite_size
 
-        min_x, min_y = self.calculate()
+        min_x, min_y = self.min_x_y()
 
         self.blit(sprite, ((coord[0] - min_x) * self.game_engine.sprite_size,
                            (coord[1] - min_y) * self.game_engine.sprite_size))
@@ -75,7 +75,7 @@ class GameSurface(ScreenHandle):
     def draw(self, canvas):
         size = self.game_engine.sprite_size
 
-        min_x, min_y = self.calculate()
+        min_x, min_y = self.min_x_y()
 
         self.draw_map()
         for obj in self.game_engine.objects:
@@ -193,7 +193,6 @@ class HelpWindow(ScreenHandle):
         self.data.append(["Num+", "Zoom +"])
         self.data.append(["Num-", "Zoom -"])
         self.data.append([" R ", "Restart Game"])
-    # FIXME You can add some help information
 
     def connect_engine(self, engine):
         self.engine = engine

@@ -165,9 +165,7 @@ class Effect(Hero):
     def apply_effect(self):
         pass
 
-
-# added classes
-
+    
 class Berserk(Effect):
 
     def apply_effect(self):
