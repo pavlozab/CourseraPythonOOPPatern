@@ -1,6 +1,6 @@
 import random
 import yaml
-from abc import ABC, abstractmethod
+from abc import ABC
 
 
 class AbstractLevel(yaml.YAMLObject):
@@ -9,23 +9,9 @@ class AbstractLevel(yaml.YAMLObject):
     def from_yaml(cls, loader, node):
         _map = cls.Map()
         _obj = cls.Objects()
-        level_objects = loader.construct_mapping(node)
-
-        #obj_map = _map.get_map()
-        #objects = _obj.get_objects(obj_map)
-
-        for obj, data in level_objects.items():
-            _obj.config[obj] = data
-            """if type(_map) == type(MediumLevel().Map()):
-                _obj.config[obj] = data
-
-            elif type(_map) == type(HardLevel().Map()):
-                _obj.config[obj] = data"""
-
-        #_obj.objects = objects
-        #print(_map, '\n', _obj)
+        config = loader.construct_mapping(node)
+        _obj.config.update(config)
         return {'map': _map, 'obj': _obj}
-
 
     @classmethod
     def get_map(cls):
@@ -38,12 +24,13 @@ class AbstractLevel(yaml.YAMLObject):
     class Map(ABC):
         pass
 
-
     class Objects(ABC):
         pass
 
+
 class EasyLevel(AbstractLevel):
-    yaml_tag = u'!easy_level'
+
+    yaml_tag = '!easy_level'
 
     class Map:
         def __init__(self):
@@ -51,181 +38,110 @@ class EasyLevel(AbstractLevel):
             for i in range(5):
                 for j in range(5):
                     if i == 0 or j == 0 or i == 4 or j == 4:
-                        self.Map[j][i] = -1  # граница карты
+                        self.Map[j][i] = -1  # РіСЂР°РЅРёС†Р° РєР°СЂС‚С‹
                     else:
-                        self.Map[j][i] = random.randint(0, 2)  # случайная характеристика области
-
+                        self.Map[j][i] = random.randint(0, 2)  # СЃР»СѓС‡Р°Р№РЅР°СЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєР° РѕР±Р»Р°СЃС‚Рё
+         
         def get_map(self):
             return self.Map
 
-        def __str__(self):
-            return "map: {}".format(self.Map)
-
-        def __repr__(self):
-            return str(type(self).__name__)# self.__str__()
-
     class Objects:
+            def __init__(self):
+                self.objects = [('next_lvl', (2, 2))]
+                self.config = {}
 
-        def __init__(self):
-            self.objects = [('next_lvl', (2, 2))]
-            self.config = {}
+            def get_objects(self, _map):
+                for obj_name in ['rat']:
+                    coord = (random.randint(1, 3), random.randint(1, 3))
+                    intersect = True
+                    while intersect:
+                        intersect = False
+                        for obj in self.objects:
+                            if coord == obj[1]:
+                                intersect = True
+                                coord = (random.randint(1, 3), random.randint(1, 3))
 
-        def get_objects(self, _map):
-            for obj_name in ['rat']:
-                coord = (random.randint(1, 3), random.randint(1, 3))
-                intersect = True
-                while intersect:
-                    intersect = False
-                    for obj in self.objects:
-                        if coord == obj[1]:
-                            intersect = True
-                            coord = (random.randint(1, 3), random.randint(1, 3))
+                    self.objects.append((obj_name, coord))
 
-                self.objects.append((obj_name, coord))
+                return self.objects
 
-            return self.objects
-
-        def __str__(self):
-            return "objects: {}\nconfig: {}".format(self.objects, self.config)
-
-        def __repr__(self):
-            return self.__str__()
 
 class MediumLevel(AbstractLevel):
-    yaml_tag = u'!medium_level'
+
+    yaml_tag = '!medium_level'
 
     class Map:
-
         def __init__(self):
             self.Map = [[0 for _ in range(8)] for _ in range(8)]
             for i in range(8):
                 for j in range(8):
                     if i == 0 or j == 0 or i == 7 or j == 7:
-                        self.Map[j][i] = -1  # граница карты
+                        self.Map[j][i] = -1  # РіСЂР°РЅРёС†Р° РєР°СЂС‚С‹
                     else:
-                        self.Map[j][i] = random.randint(0, 2)  # случайная характеристика области
-
+                        self.Map[j][i] = random.randint(0, 2)  # СЃР»СѓС‡Р°Р№РЅР°СЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєР° РѕР±Р»Р°СЃС‚Рё
+         
         def get_map(self):
             return self.Map
-        def __str__(self):
-            return "map: {}".format(self.Map)
-
-        def __repr__(self):
-            return str(type(self).__name__)#self.__str__()
 
     class Objects:
+            def __init__(self):
+                self.objects = [('next_lvl', (4, 4))]
+                self.config = {'enemy': []}
 
-        def __init__(self):
-            self.objects = [('next_lvl', (4, 4))]
-            self.config = {'enemy': []}
+            def get_objects(self, _map):
+                for obj_name in self.config['enemy']:
+                    coord = (random.randint(1, 6), random.randint(1, 6))
+                    intersect = True
+                    while intersect:
+                        intersect = False
+                        for obj in self.objects:
+                            if coord == obj[1]:
+                                intersect = True
+                                coord = (random.randint(1, 6), random.randint(1, 6))
 
-        def get_objects(self, _map):
-            for obj_name in self.config['enemy']:
-                coord = (random.randint(1, 6), random.randint(1, 6))
-                intersect = True
-                while intersect:
-                    intersect = False
-                    for obj in self.objects:
-                        if coord == obj[1]:
-                            intersect = True
-                            coord = (random.randint(1, 6), random.randint(1, 6))
+                    self.objects.append((obj_name, coord))
 
-                self.objects.append((obj_name, coord))
+                return self.objects
 
-            return self.objects
-
-        def __str__(self):
-            return "objects: {}\nconfig: {}".format(self.objects, self.config)
-
-        def __repr__(self):
-            return self.__str__()
-        
 
 class HardLevel(AbstractLevel):
-    yaml_tag = u'!hard_level'
+
+    yaml_tag = '!hard_level'
 
     class Map:
-
         def __init__(self):
             self.Map = [[0 for _ in range(10)] for _ in range(10)]
             for i in range(10):
                 for j in range(10):
                     if i == 0 or j == 0 or i == 9 or j == 9:
-                        self.Map[j][i] = -1  # граница карты :: непроходимый участок карты
+                        self.Map[j][i] = -1  # РіСЂР°РЅРёС†Р° РєР°СЂС‚С‹ :: РЅРµРїСЂРѕС…РѕРґРёРјС‹Р№ СѓС‡Р°СЃС‚РѕРє РєР°СЂС‚С‹
                     else:
-                        self.Map[j][i] = random.randint(-1, 8)  # случайная характеристика области
-
+                        self.Map[j][i] = random.randint(-1, 8)  # СЃР»СѓС‡Р°Р№РЅР°СЏ С…Р°СЂР°РєС‚РµСЂРёСЃС‚РёРєР° РѕР±Р»Р°СЃС‚Рё
+         
         def get_map(self):
             return self.Map
 
-        def __str__(self):
-            return "map: {}".format(self.Map)
-
-        def __repr__(self):
-            return str(type(self).__name__)#self.__str__()
-
     class Objects:
+            def __init__(self):
+                self.objects = [('next_lvl', (5, 5))]
+                self.config = {'enemy_count': 5, 'enemy': []}
 
-        def __init__(self):
-            self.objects = [('next_lvl', (5, 5))]
-            self.config = {'enemy_count': 5, 'enemy': []}
-
-        def get_objects(self, _map):
-            for obj_name in self.config['enemy']:
-                for tmp_int in range(self.config['enemy_count']):
-                    coord = (random.randint(1, 8), random.randint(1, 8))
-                    intersect = True
-                    while intersect:
-                        intersect = False
-                        if _map[coord[0]][coord[1]] == -1:
-                            intersect = True
-                            coord = (random.randint(1, 8), random.randint(1, 8))
-                            continue
-                        for obj in self.objects:
-                            if coord == obj[1]:
+            def get_objects(self, _map):
+                for obj_name in self.config['enemy']:
+                    for tmp_int in range(self.config['enemy_count']):
+                        coord = (random.randint(1, 8), random.randint(1, 8))
+                        intersect = True
+                        while intersect:
+                            intersect = False
+                            if _map[coord[0]][coord[1]] == -1:
                                 intersect = True
                                 coord = (random.randint(1, 8), random.randint(1, 8))
+                                continue
+                            for obj in self.objects:
+                                if coord == obj[1]:
+                                    intersect = True
+                                    coord = (random.randint(1, 8), random.randint(1, 8))
 
-                    self.objects.append((obj_name, coord))
+                        self.objects.append((obj_name, coord))
 
-            return self.objects
-
-        def __str__(self):
-            return "objects: {}\nconfig: {}".format(self.objects, self.config)
-
-        def __repr__(self):
-            return self.__str__()
-
-            
-Levels2 = yaml.load('''levels:
-  - !easy_level {}
-  - !medium_level
-    enemy: ['rat']
-  - !hard_level
-    enemy:
-    - rat
-    - snake
-    - dragon
-    enemy_count: 10''', Loader=yaml.Loader)
-
-Levels = {'levels':[]}
-_map = EasyLevel.Map()
-_obj = EasyLevel.Objects()
-Levels['levels'].append({'map': _map, 'obj': _obj})
-
-_map = MediumLevel.Map()
-_obj = MediumLevel.Objects()
-_obj.config = {'enemy':['rat']}
-Levels['levels'].append({'map': _map, 'obj': _obj})
-
-_map = HardLevel.Map()
-_obj = HardLevel.Objects()
-_obj.config = {'enemy_count': 10, 'enemy': ['rat', 'snake', 'dragon']}
-Levels['levels'].append({'map': _map, 'obj': _obj})
-
-#for i in Levels['levels']:
-
-for i in range(3):
-    if Levels2['levels'][i] != Levels['levels'][i]:
-        print(Levels2['levels'][i])
-        print(Levels['levels'][i])
+                return self.objects
